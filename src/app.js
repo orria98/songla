@@ -9,7 +9,7 @@ import cors from "cors";
 dotenv.config();
 
 const app = express();
-const allowedOrigins = ["http://localhost:3001"];
+const allowedOrigins = [process.env.ALLOWED_ORIGIN];
 
 const corsOptions = {
   origin: (origin, callback) => {

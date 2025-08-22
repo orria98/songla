@@ -1,5 +1,5 @@
 export function cors(req, res, next) {
-  const allowedOrigins = ["http://localhost:3001"];
+  const allowedOrigins = [process.env.ALLOWED_ORIGIN];
 
   console.log("Incoming Origin: ", req.headers.origin);
 
