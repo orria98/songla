@@ -2,6 +2,7 @@ import verifyToken from "../middleware/authMiddleware.js";
 import Song from "../models/song.js";
 import express from "express";
 import connectDB from "../lib/db.js";
+import fs from "fs/promises";
 
 const router = express.Router();
 
@@ -77,6 +78,18 @@ router.get("/daily", async (req, res) => {
     console.error("Error fetching daily songs:", err);
     res.status(500).json({ error: "Failed to fetch daily songs" });
   }
+});
+
+router.get("/allSongs", (req, res) => {
+  fs.readFile("./data/playlist_artist_song.json", "utf8")
+    .then((data) => {
+      const songs = JSON.parse(data);
+      res.status(200).json(songs);
+    })
+    .catch((err) => {
+      console.error("Error reading song data:", err);
+      res.status(500).json({ error: "Failed to read song data" });
+    });
 });
 
 export default router;
