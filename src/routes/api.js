@@ -92,4 +92,40 @@ router.get("/allSongs", (req, res) => {
     });
 });
 
+router.get("/songsLast7Days", async (req, res) => {
+  try {
+    const db = await connectDB();
+    const songs = db.collection("songs");
+    const last7Days = new Date();
+    last7Days.setDate(last7Days.getDate() - 7);
+    const recentSongs = await songs
+      .find({ date: { $gte: last7Days } })
+      .toArray();
+    res.status(200).json(recentSongs);
+  } catch (err) {
+    console.error("Error fetching songs from the last 7 days:", err);
+    res
+      .status(500)
+      .json({ error: "Failed to fetch songs from the last 7 days" });
+  }
+});
+
+import { ObjectId } from "mongodb";
+
+router.get("/song/:id", async (req, res) => {
+  try {
+    const db = await connectDB();
+    const songs = db.collection("songs");
+    const song = await songs.findOne({ _id: new ObjectId(req.params.id) });
+
+    if (!song) {
+      return res.status(404).json({ error: "Song not found" });
+    }
+    res.status(200).json(song);
+  } catch (err) {
+    console.error("Error fetching song:", err);
+    res.status(500).json({ error: "Failed to fetch song" });
+  }
+});
+
 export default router;
