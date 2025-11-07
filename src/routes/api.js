@@ -97,7 +97,7 @@ router.get("/songsLast7Days", async (req, res) => {
     const db = await connectDB();
     const songs = db.collection("songs");
     const last7Days = new Date();
-    last7Days.setDate(last7Days.getDate() - 40);
+    last7Days.setDate(last7Days.getDate() - 400);
     const recentSongs = await songs
       .find({ date: { $gte: last7Days } })
       .toArray();
