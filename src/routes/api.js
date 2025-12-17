@@ -99,7 +99,7 @@ router.get("/songsLast7Days", async (req, res) => {
     const last7Days = new Date();
     last7Days.setDate(last7Days.getDate() - 400);
     const recentSongs = await songs
-      .find({ date: { $gte: last9Days } })
+      .find({ date: { $gte: last7Days } })
       .toArray();
     res.status(200).json(recentSongs);
   } catch (err) {
