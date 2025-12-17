@@ -96,17 +96,17 @@ router.get("/songsLast7Days", async (req, res) => {
   try {
     const db = await connectDB();
     const songs = db.collection("songs");
-    const last7Days = new Date();
-    last7Days.setDate(last7Days.getDate() - 7);
+    const last9Days = new Date();
+    last9Days.setDate(last9Days.getDate() - 9);
     const recentSongs = await songs
-      .find({ date: { $gte: last7Days } })
+      .find({ date: { $gte: last9Days } })
       .toArray();
     res.status(200).json(recentSongs);
   } catch (err) {
-    console.error("Error fetching songs from the last 7 days:", err);
+    console.error("Error fetching songs from the last 9 days:", err);
     res
       .status(500)
-      .json({ error: "Failed to fetch songs from the last 7 days" });
+      .json({ error: "Failed to fetch songs from the last 9 days" });
   }
 });
 
