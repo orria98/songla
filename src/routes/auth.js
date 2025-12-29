@@ -8,7 +8,6 @@ import User from "../models/user.js";
 
 const router = express.Router();
 
-// ---------- REGISTER ----------
 router.post("/register", async (req, res) => {
   try {
     const db = await connectDB();
@@ -39,7 +38,6 @@ router.post("/register", async (req, res) => {
   }
 });
 
-// ---------- LOGIN ----------
 router.post("/login", async (req, res) => {
   try {
     const db = await connectDB();
@@ -57,12 +55,10 @@ router.post("/login", async (req, res) => {
       return res.status(401).json({ error: "Authentication failed" });
 
     const payload = { userId: user._id, username: user.username };
-    // Access token (short lived)
     const accessToken = jwt.sign(payload, process.env.JWT_SECRET, {
       expiresIn: process.env.JWT_EXPIRATION || "15m",
     });
 
-    // Refresh token (opaque)
     const refreshToken = generateRefreshToken();
     const tokenHash = hashRefreshToken(refreshToken);
 
@@ -70,7 +66,6 @@ router.post("/login", async (req, res) => {
     const now = new Date();
     const expiresAt = new Date(now.getTime() + ttlDays * 24 * 60 * 60 * 1000);
 
-    // Save to refreshTokens collection
     const refreshTokens = db.collection("refreshTokens");
     await refreshTokens.insertOne({
       userId: user._id,
@@ -79,7 +74,6 @@ router.post("/login", async (req, res) => {
       expiresAt,
     });
 
-    // Set HttpOnly cookie with the raw token
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
       secure: false,
@@ -98,7 +92,6 @@ router.post("/login", async (req, res) => {
   }
 });
 
-// ---------- REFRESH (no access token required) ----------
 router.post("/refresh-token", async (req, res) => {
   try {
     const rawRefreshToken = req.cookies?.refreshToken;
@@ -154,7 +147,6 @@ router.post("/refresh-token", async (req, res) => {
   }
 });
 
-// ---------- LOGOUT ----------
 router.post("/logout", async (req, res) => {
   try {
     const rawRefreshToken = req.cookies?.refreshToken;
@@ -164,10 +156,9 @@ router.post("/logout", async (req, res) => {
 
     if (rawRefreshToken) {
       const tokenHash = hashRefreshToken(rawRefreshToken);
-      await refreshTokens.deleteOne({ tokenHash }); // delete if exists
+      await refreshTokens.deleteOne({ tokenHash });
     }
 
-    // Clear cookie
     res.clearCookie("refreshToken", { path: "/auth/refresh-token" });
     return res.sendStatus(204);
   } catch (err) {

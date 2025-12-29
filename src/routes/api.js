@@ -112,6 +112,61 @@ router.get("/songsLast7Days", async (req, res) => {
 
 import { ObjectId } from "mongodb";
 
+router.post("/stats/:songId", async (req, res) => {
+  try {
+    const { songId } = req.params;
+    const { won, guessNumber } = req.body;
+
+    if (typeof won !== "boolean" || typeof guessNumber !== "number") {
+      return res.status(400).json({ error: "won og guessNumber eru nauðsynleg" });
+    }
+
+    const db = await connectDB();
+    const songStats = db.collection("songStats");
+
+    const bucket = Math.min(Math.max(guessNumber, 1), 7);
+
+    const updateObj = {
+      $inc: {
+        totalPlays: 1,
+        ...(won && { totalWins: 1 }),
+        ...(won && { [`distribution.${bucket}`]: 1 }),
+      },
+    };
+
+    await songStats.updateOne({ songId }, updateObj, { upsert: true });
+
+    res.status(200).json({ message: "Tölfræði vistuð" });
+  } catch (err) {
+    console.error("Villa við að vista tölfræði:", err);
+    res.status(500).json({ error: "Gat ekki vistað tölfræði" });
+  }
+});
+
+router.get("/stats/:songId", async (req, res) => {
+  try {
+    const { songId } = req.params;
+    const db = await connectDB();
+    const songStats = db.collection("songStats");
+
+    const stats = await songStats.findOne({ songId });
+
+    if (!stats) {
+      return res.status(200).json({
+        songId,
+        totalPlays: 0,
+        totalWins: 0,
+        distribution: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0 },
+      });
+    }
+
+    res.status(200).json(stats);
+  } catch (err) {
+    console.error("Villa við að sækja tölfræði:", err);
+    res.status(500).json({ error: "Gat ekki sótt tölfræði" });
+  }
+});
+
 router.get("/song/:id", async (req, res) => {
   try {
     const db = await connectDB();
