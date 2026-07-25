@@ -92,23 +92,19 @@ router.get("/allSongs", (req, res) => {
     });
 });
 
-router.get("/songsLast7Days", async (req, res) => {
+
+});router.get("/songsLast7Days", async (req, res) => {
   try {
     const db = await connectDB();
     const songs = db.collection("songs");
-    const last7Days = new Date();
-    last7Days.setDate(last7Days.getDate() - 900);
-    const recentSongs = await songs
-      .find({ date: { $gte: last7Days } })
-      .toArray();
-    res.status(200).json(recentSongs);
+    const allSongs = await songs.find().sort({ date: -1 }).toArray();
+    res.status(200).json(allSongs);
   } catch (err) {
-    console.error("Error fetching songs from the last 9 days:", err);
-    res
-      .status(500)
-      .json({ error: "Failed to fetch songs from the last 9 days" });
+    console.error("Error fetching songs:", err);
+    res.status(500).json({ error: "Failed to fetch songs" });
   }
 });
+
 
 import { ObjectId } from "mongodb";
 
