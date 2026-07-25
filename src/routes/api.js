@@ -93,7 +93,7 @@ router.get("/allSongs", (req, res) => {
 });
 
 
-});router.get("/songsLast7Days", async (req, res) => {
+router.get("/songsLast7Days", async (req, res) => {
   try {
     const db = await connectDB();
     const songs = db.collection("songs");
