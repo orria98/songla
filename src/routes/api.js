@@ -97,7 +97,7 @@ router.get("/songsLast7Days", async (req, res) => {
   try {
     const db = await connectDB();
     const songs = db.collection("songs");
-    const allSongs = await songs.find().sort({ date: -1000 }).toArray();
+    const allSongs = await songs.find().sort({ date: -4000 }).toArray();
     res.status(200).json(allSongs);
   } catch (err) {
     console.error("Error fetching songs:", err);
